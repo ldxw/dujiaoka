@@ -90,19 +90,47 @@ jobs:
         id: tags
         shell: bash
         run: |
-          TAGS="${IMAGE_DOCKERHUB}:latest,${IMAGE_GHCR}:latest"
+          MODE="${{ github.event.inputs.branch_mode }}"
+          TAGS=""
 
-          if [[ "${{ github.event.inputs.add_version }}" == "true" ]]; then
-            VER="${{ github.event.inputs.version }}"
-            TAGS="${TAGS},${IMAGE_DOCKERHUB}:${VER},${IMAGE_GHCR}:${VER}"
+          # 计算变量标签（custom 模式下必有；若未启用 add_extra_tag，则使用默认 template）
+          EXTRA_EFF="${{ github.event.inputs.extra_tag }}"
+          if [[ "${{ github.event.inputs.add_extra_tag }}" != "true" ]]; then
+            EXTRA_EFF="template"
+          fi
+          # 清洗变量标签
+          EXTRA_EFF="${EXTRA_EFF// /-}"
+          EXTRA_EFF="${EXTRA_EFF//\//-}"
+          EXTRA_EFF="$(echo "${EXTRA_EFF}" | tr '[:upper:]' '[:lower:]')"
+
+          if [[ "${MODE}" == "master" ]]; then
+            # master：保留原设计（有 plain latest；版本号/额外标签可独立追加）
+            TAGS="${IMAGE_DOCKERHUB}:latest,${IMAGE_GHCR}:latest"
+
+            if [[ "${{ github.event.inputs.add_version }}" == "true" ]]; then
+              VER="${{ github.event.inputs.version }}"
+              TAGS="${TAGS},${IMAGE_DOCKERHUB}:${VER},${IMAGE_GHCR}:${VER}"
+            fi
+
+            if [[ "${{ github.event.inputs.add_extra_tag }}" == "true" ]]; then
+              TAGS="${TAGS},${IMAGE_DOCKERHUB}:${EXTRA_EFF},${IMAGE_GHCR}:${EXTRA_EFF}"
+            fi
+          else
+            # custom：不推送纯 latest
+            if [[ "${{ github.event.inputs.add_version }}" == "true" ]]; then
+              VER="${{ github.event.inputs.version }}"
+              # 版本号-变量标签
+              TAGS="${IMAGE_DOCKERHUB}:${VER}-${EXTRA_EFF},${IMAGE_GHCR}:${VER}-${EXTRA_EFF}"
+            else
+              # 默认标签-变量标签：这里的“默认标签”按你的规则用 latest 作为基底，但不推送纯 latest
+              TAGS="${IMAGE_DOCKERHUB}:latest-${EXTRA_EFF},${IMAGE_GHCR}:latest-${EXTRA_EFF}"
+            fi
           fi
 
-          if [[ "${{ github.event.inputs.add_extra_tag }}" == "true" ]]; then
-            EXTRA="${{ github.event.inputs.extra_tag }}"
-            EXTRA="${EXTRA// /-}"
-            EXTRA="${EXTRA//\//-}"
-            EXTRA="$(echo "${EXTRA}" | tr '[:upper:]' '[:lower:]')"
-            TAGS="${TAGS},${IMAGE_DOCKERHUB}:${EXTRA},${IMAGE_GHCR}:${EXTRA}"
+          # 保护：custom 模式下若 EXTRA_EFF 为空（理论不会发生），直接报错
+          if [[ "${MODE}" == "custom" && -z "${EXTRA_EFF}" ]]; then
+            echo "::error title=Invalid extra tag::自定义分支构建需要提供变量标签（或使用默认 template）。"
+            exit 1
           fi
 
           echo "list=${TAGS}" >> "$GITHUB_OUTPUT"
