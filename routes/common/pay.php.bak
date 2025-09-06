@@ -40,10 +40,6 @@ Route::group(['prefix' => 'pay', 'namespace' => 'Pay', 'middleware' => ['dujiaok
     Route::get('vpay/{payway}/{orderSN}', 'VpayController@gateway');
     Route::get('vpay/notify_url', 'VpayController@notifyUrl');
     Route::get('vpay/return_url', 'VpayController@returnUrl')->name('vpay-return');
-    // VMQFox支付
-    Route::get('vpayfox/{payway}/{orderSN}', 'VpayfoxController@gateway');
-    Route::get('vpayfox/notify_url', 'VpayfoxController@notifyUrl');
-    Route::get('vpayfox/return_url', 'VpayfoxController@returnUrl')->name('vpayfox-return');
     // stripe
     Route::get('stripe/{payway}/{oid}','StripeController@gateway');
     Route::get('stripe/return_url','StripeController@returnUrl');
@@ -56,5 +52,9 @@ Route::group(['prefix' => 'pay', 'namespace' => 'Pay', 'middleware' => ['dujiaok
     Route::get('epusdt/{payway}/{orderSN}', 'EpusdtController@gateway');
     Route::post('epusdt/notify_url', 'EpusdtController@notifyUrl');
     Route::get('epusdt/return_url', 'EpusdtController@returnUrl')->name('epusdt-return');
+    // tokenpay
+    Route::get('tokenpay/{payway}/{orderSN}', 'TokenPayController@gateway');
+    Route::post('tokenpay/notify_url', 'TokenPayController@notifyUrl');
+    Route::get('tokenpay/return_url', 'TokenPayController@returnUrl')->name('tokenpay-return');
 
 });
