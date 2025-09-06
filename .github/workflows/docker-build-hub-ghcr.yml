@@ -1,33 +1,40 @@
 name: Docker 独角数卡
 
 on:
-  # 只能手动构建
   workflow_dispatch:
     inputs:
-      docker_ref:
-        description: "选择用于构建的分支或标签 (Dockerfile 所在分支/Tag) "
-        default: "template"
+      branch_mode:
+        description: "选择构建分支来源"
         required: true
+        default: "master"
+        type: choice
+        options:
+          - master
+          - custom
+      docker_ref:
+        description: "自定义分支或 Tag (仅当 branch_mode=custom 时使用) "
+        required: false
+        default: "template"
         type: string
       add_version:
-        description: "是否额外打版本号 Tag (true/false) "
+        description: "是否额外打版本号 Tag (true/false)"
         required: true
         default: "false"
         type: choice
         options: ["false", "true"]
       version:
-        description: "版本号 (当 add_version=true 时使用) ，默认 2.0.6"
+        description: "版本号 (当 add_version=true 时使用)，默认 2.0.6"
         required: false
         default: "2.0.6"
         type: string
       add_extra_tag:
-        description: "是否额外打“标签-变量”Tag (true/false) "
+        description: "是否额外打“标签-变量”Tag (true/false)"
         required: true
         default: "false"
         type: choice
         options: ["false", "true"]
       extra_tag:
-        description: "“标签-变量”的值 (当 add_extra_tag=true 时使用) ，默认 template"
+        description: "“标签-变量”的值 (当 add_extra_tag=true 时使用)，默认 template"
         required: false
         default: "template"
         type: string
@@ -46,7 +53,16 @@ jobs:
       IMAGE_GHCR: ghcr.io/ldxw/dujiaoka
 
     steps:
-      - name: Check out the repo (指定分支/Tag)
+      # 默认 master
+      - name: Check out repo (master)
+        if: ${{ github.event.inputs.branch_mode == 'master' }}
+        uses: actions/checkout@v4
+        with:
+          ref: master
+
+      # 自定义分支/Tag
+      - name: Check out repo (custom ref)
+        if: ${{ github.event.inputs.branch_mode == 'custom' }}
         uses: actions/checkout@v4
         with:
           ref: ${{ github.event.inputs.docker_ref }}
@@ -74,20 +90,18 @@ jobs:
         id: tags
         shell: bash
         run: |
-          # 基础 tag：latest (同时推送到 Docker Hub 与 GHCR)
           TAGS="${IMAGE_DOCKERHUB}:latest,${IMAGE_GHCR}:latest"
 
-          # 是否添加版本号 tag (默认不添加；若添加，默认版本号 2.0.6)
           if [[ "${{ github.event.inputs.add_version }}" == "true" ]]; then
             VER="${{ github.event.inputs.version }}"
             TAGS="${TAGS},${IMAGE_DOCKERHUB}:${VER},${IMAGE_GHCR}:${VER}"
           fi
 
-          # 是否添加“标签-变量” tag (默认不添加；若添加，默认 template)
           if [[ "${{ github.event.inputs.add_extra_tag }}" == "true" ]]; then
             EXTRA="${{ github.event.inputs.extra_tag }}"
-            # 简单清洗一下空格
             EXTRA="${EXTRA// /-}"
+            EXTRA="${EXTRA//\//-}"
+            EXTRA="$(echo "${EXTRA}" | tr '[:upper:]' '[:lower:]')"
             TAGS="${TAGS},${IMAGE_DOCKERHUB}:${EXTRA},${IMAGE_GHCR}:${EXTRA}"
           fi
 
@@ -102,14 +116,3 @@ jobs:
           platforms: linux/amd64,linux/arm64
           push: true
           tags: ${{ steps.tags.outputs.list }}
-          # 如需构建参数可在此追加：
-          # build-args: |
-          #   FOO=bar
-
-      # 如需查看生成的摘要或 SBOM，可启用以下（可选）
-      # - name: Generate provenance (optional)
-      #   uses: actions/attest-build-provenance@v2
-      #   with:
-      #     subject-name: ${{ env.IMAGE_GHCR }}
-      #     subject-digest: ${{ steps.build.outputs.digest }}
-      #     push-to-registry: true
