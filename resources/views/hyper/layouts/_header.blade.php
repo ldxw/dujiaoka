@@ -8,8 +8,8 @@
     <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
     @endif
     <link rel="shortcut icon" href="/favicon.ico">
-    <link href="/assets/hyper/css/vendor/jquery-jvectormap-1.2.2.css" rel="stylesheet" type="text/css">
-    <link href="/assets/hyper/css/icons.min.css" rel="stylesheet" type="text/css">
-    <link href="/assets/hyper/css/app-creative.min.css" rel="stylesheet" type="text/css" id="light-style">
-    <link href="/assets/hyper/css/hyper.css?v=045256" rel="stylesheet" type="text/css">
+    <link href="fastly.jsdelivr.net/gh/ldxw/dujiaoka@template-cdnjs/public/assets/hyper/css/vendor/jquery-jvectormap-1.2.2.css" rel="stylesheet" type="text/css">
+    <link href="fastly.jsdelivr.net/gh/ldxw/dujiaoka@template-cdnjs/public/assets/hyper/css/icons.min.css" rel="stylesheet" type="text/css">
+    <link href="fastly.jsdelivr.net/gh/ldxw/dujiaoka@template-cdnjs/public/assets/hyper/css/app-creative.min.css" rel="stylesheet" type="text/css" id="light-style">
+    <link href="fastly.jsdelivr.net/gh/ldxw/dujiaoka@template-cdnjs/public/assets/hyper/css/hyper.css?v=045256" rel="stylesheet" type="text/css">
 </head>

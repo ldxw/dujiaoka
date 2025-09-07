@@ -25,4 +25,5 @@
         new google.translate.TranslateElement({pageLanguage: 'zh', includedLanguages:'zh-TW,en,ru,fr'}, 'google_translate_element');
     } 
 </script>
-<script type="text/Javascript" src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+<!--<script type="text/Javascript" src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>-->
+<script type="text/Javascript" src="https://s4.zstatic.net/ajax/libs/translate.js/3.18.0/translate.js?cb=googleTranslateElementInit"></script>

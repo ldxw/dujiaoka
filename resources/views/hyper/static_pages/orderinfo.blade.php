@@ -117,7 +117,7 @@
 @stop
 
 @section('js')
-<script src="/assets/hyper/js/clipboard.min.js"></script>
+<script src="https://fastly.jsdelivr.net/gh/ldxw/dujiaoka@template-cdnjs/public/assets/hyper/js/clipboard.min.js"></script>
 <script>
     var clipboard = new ClipboardJS('.kami-btn');
     clipboard.on('success', function(e){

@@ -183,7 +183,7 @@
     <!-- Modal end -->
 @stop
 @section('js')
-<script src="/assets/unicorn/js/bootstrap-input-spinner.js"></script>
+<script src="https://fastly.jsdelivr.net/gh/ldxw/dujiaoka@template-cdnjs/public/assets/unicorn/js/bootstrap-input-spinner.js"></script>
 <script>
             @if(!empty($buy_prompt))
             var myModal = new bootstrap.Modal(document.getElementById('staticBackdrop'))
